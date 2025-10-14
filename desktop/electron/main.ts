@@ -1,10 +1,11 @@
 import { app, BrowserWindow, clipboard, ipcMain, Tray, Menu } from "electron";
-import { createRequire } from "node:module";
+//import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-//import { io } from "socket.io-client";
+//import { io, Socket } from "socket.io-client";
+import { ClipboardItem } from "../types/types";
 
-const require = createRequire(import.meta.url);
+//const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // The built directory structure
@@ -71,10 +72,11 @@ app.on("activate", () => {
 app.whenReady().then(async () => {
   createWindow();
   createTray();
+  // await connectToServer();
 });
 
 function createTray() {
-  const tray = new Tray("ico.jpeg");
+  const tray = new Tray(path.join(__dirname, "../src/assets/ico.jpeg"));
 
   const menu = Menu.buildFromTemplate([
     { label: "Abrir", click: () => win?.show() },
@@ -90,14 +92,16 @@ function createTray() {
   return tray;
 }
 
-function sendLastClipboard() {}
-
 let previousText = "";
 let history: ClipboardItem[] = [] as ClipboardItem[];
 
-interface ClipboardItem {
-  text: string;
-  time: number;
+async function sendLastClipboard() {
+  const last = JSON.stringify(lastClip);
+  if (socket && socket.connected) {
+    socket.emit("client-message", last);
+  } else {
+    console.warn("Socket not connected");
+  }
 }
 
 ipcMain.handle("get-last", () => {
@@ -111,4 +115,8 @@ ipcMain.handle("get-last", () => {
   return history && history[0] && history[0].text
     ? history[0].text
     : "Copy something";
+});
+
+ipcMain.handle("send-last", async () => {
+  await sendLastClipboard();
 });

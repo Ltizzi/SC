@@ -33,4 +33,5 @@ contextBridge.exposeInMainWorld("api", {
   //   ipcRenderer.on("clipboard-update", (event, history) => callback(history));
   // },
   getLast: () => ipcRenderer.invoke("get-last"),
+  sendLast: () => ipcRenderer.invoke("send-last"),
 });

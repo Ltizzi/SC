@@ -30,5 +30,6 @@ electron.contextBridge.exposeInMainWorld("api", {
   // onUpdate: (callback) => {
   //   ipcRenderer.on("clipboard-update", (event, history) => callback(history));
   // },
-  getLast: () => electron.ipcRenderer.invoke("get-last")
+  getLast: () => electron.ipcRenderer.invoke("get-last"),
+  sendLast: () => electron.ipcRenderer.invoke("send-last")
 });
