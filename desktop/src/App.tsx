@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/electron-vite.animate.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+
+declare global {
+  interface Window {
+    api: { getLast: () => Promise<string> };
+  }
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [lastClip, setLastClip] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const res = await window.api.getLast();
+      if (res) setLastClip(res);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
-      <div>
-        <a href="https://electron-vite.github.io" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="w-screen h-screen bg-gradient-to-br from-base-100 to-base-300  flex flex-col justify-center gap-10 text-center">
+        <h1 className="text-2xl text-primary">Shared Clipboard</h1>
+
+        <div className="flex flex-col justify-center text-center w-full bg-transparent">
+          <h2 className="text-lg text-secondary  py-5">Share last clipboard</h2>
+          <div className="flex flex-col justify-center gap-2 w-1/3 mx-auto">
+            <h1 className="text-primary italic text-xs">{lastClip}</h1>
+            <button className="btn btn-success">Envíar</button>
+          </div>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
