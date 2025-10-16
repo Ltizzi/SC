@@ -2,8 +2,7 @@ import { app, BrowserWindow, clipboard, ipcMain, Tray, Menu } from "electron";
 //import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-//import { io, Socket } from "socket.io-client";
-import { ClipboardItem } from "../types/types";
+import { socketServer, sendLast } from "./socket";
 
 //const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -69,10 +68,15 @@ app.on("activate", () => {
   }
 });
 
+const PORT = 3000;
+
 app.whenReady().then(async () => {
   createWindow();
   createTray();
-  // await connectToServer();
+  socketServer.listen(PORT, () => {
+    console.log("Iniciando socket server...");
+    console.log("Escuchando en puerto 3000...");
+  });
 });
 
 function createTray() {
@@ -92,31 +96,24 @@ function createTray() {
   return tray;
 }
 
-let previousText = "";
-let history: ClipboardItem[] = [] as ClipboardItem[];
-
-async function sendLastClipboard() {
-  const last = JSON.stringify(lastClip);
-  if (socket && socket.connected) {
-    socket.emit("client-message", last);
-  } else {
-    console.warn("Socket not connected");
-  }
+function sendLastClipboard() {
+  sendLast(history[0].text);
 }
+
+let previousText = "";
+const history: SharedClipBoardItem[] = [] as ClipboardItem[];
 
 ipcMain.handle("get-last", () => {
   const current = clipboard.readText();
   if (current && current !== previousText) {
     previousText = current;
     history.unshift({ text: current, time: Date.now() });
-    // Enviar a renderer si está abierto
-    // win?.webContents.send("clipboard-changed", history);
   }
   return history && history[0] && history[0].text
     ? history[0].text
     : "Copy something";
 });
 
-ipcMain.handle("send-last", async () => {
-  await sendLastClipboard();
+ipcMain.handle("send-last", () => {
+  sendLastClipboard();
 });
