@@ -31,9 +31,12 @@ function App() {
 
         <div className="flex flex-col justify-center text-center w-full bg-transparent">
           <h2 className="text-lg text-secondary  py-5">Share last clipboard</h2>
-          <div className="flex flex-col justify-center gap-2 w-1/3 mx-auto">
-            <h1 className="text-primary italic text-xs">{lastClip}</h1>
-            <button className="btn btn-success" onClick={() => sendLast()}>
+          <div className="flex flex-col justify-center gap-2 w-2/3 mx-auto">
+            <p className="text-primary italic text-xs">{lastClip}</p>
+            <button
+              className="btn btn-success btn-outline"
+              onClick={() => sendLast()}
+            >
               Envíar
             </button>
           </div>

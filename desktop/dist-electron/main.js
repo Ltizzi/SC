@@ -18085,12 +18085,21 @@ function sendLastClipboard() {
 let previousText = "";
 const history = [];
 ipcMain.handle("get-last", () => {
-  const current = clipboard.readText();
-  if (current && current !== previousText) {
-    previousText = current;
-    history.unshift({ text: current, time: Date.now() });
+  const formats = clipboard.availableFormats();
+  console.log(formats);
+  const hasImage = formats.some(
+    (f) => f.startsWith("image/") || f.includes("public.")
+  );
+  if (!hasImage) {
+    const current = clipboard.readText();
+    if (current && current !== previousText) {
+      previousText = current;
+      history.unshift({ text: current, time: Date.now() });
+    }
+    return history && history[0] && history[0].text ? history[0].text : "Copy something";
+  } else {
+    console.log("Images not supported...YET");
   }
-  return history && history[0] && history[0].text ? history[0].text : "Copy something";
 });
 ipcMain.handle("send-last", () => {
   sendLastClipboard();
