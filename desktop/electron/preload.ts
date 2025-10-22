@@ -35,3 +35,9 @@ contextBridge.exposeInMainWorld("api", {
   getLast: () => ipcRenderer.invoke("get-last"),
   sendLast: () => ipcRenderer.invoke("send-last"),
 });
+
+contextBridge.exposeInMainWorld("db", {
+  add: (value: string) => ipcRenderer.invoke("history:add", value),
+  get: () => ipcRenderer.invoke("history:get"),
+  remove: (id: string) => ipcRenderer.invoke("history:delete", id),
+});

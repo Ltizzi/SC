@@ -3,6 +3,7 @@ import { app, BrowserWindow, clipboard, ipcMain, Tray, Menu } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { socketServer, sendLast } from "./socket";
+import { addHistory, getHistory, deleteHistory } from "./db";
 
 //const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -127,3 +128,7 @@ ipcMain.handle("get-last", () => {
 ipcMain.handle("send-last", () => {
   sendLastClipboard();
 });
+
+ipcMain.handle("history:add", (_event, value: string) => addHistory(value));
+ipcMain.handle("history:get", () => getHistory());
+ipcMain.handle("history:delete", (_event, id: string) => deleteHistory(id));
